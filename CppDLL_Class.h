@@ -4,6 +4,11 @@
 	Author:		rrrfff
 	Url:	    http://blog.csdn.net/rrrfff
 *********************************************************************/
+
+#define RLIB_INCLUDE_RLIB_LIB    1
+#define RLIB_INCLUDE_SUPPORT_LIB 0
+#define RLIB_INCLUDE_NATIVE_API  0
+
 #include <RLib_LibImport.h>
 #include "CppDLL_Resource.h"
 
@@ -112,7 +117,7 @@ public:
 	List<EXPORTINFO> m_class_element_list;
 	VECTOR           m_tree_top;     
 	UInt32           m_number_of_names;
-	Integer          m_number_of_translated;
+	Int32          m_number_of_translated;
 	Boolean          m_x64;
 
 private:
@@ -211,8 +216,8 @@ private:
 							goto __continue_next;
 						} //if
 
-						extern char *rlib_unDName(char *buffer, const char *mangled, int buflen);
-						auto demangled_name = rlib_unDName(demangled, export_name, RLIB_COUNTOF(demangled));
+						extern char *_unDNameEx(char *buffer, const char *mangled, int buflen);
+						auto demangled_name = _unDNameEx(demangled, export_name, RLIB_COUNTOF(demangled));
 						if (demangled_name != NULL) {
 							if (strstr(demangled_name, "`default") == NULL && 
 								strstr(demangled_name, "`vftable") == NULL) {
@@ -394,7 +399,7 @@ __next:
 	void GenerateCppHeader()
 	{
 		Path   path(this->m_dll_path);
-		String fn = StringReference(path.GetInfo().Fname);
+		String fn = StringReference(PathInfo(path).Fname);
 
 		auto outfile = IO::File::Create(this->m_output_path + fn + _R(".h"), FileMode::CreateNew);
 		RLIB_StreamWriteA(outfile,
@@ -451,7 +456,7 @@ __next:
 	void GenerateExportDef()
 	{
 		Path   path(this->m_dll_path);
-		String fn = StringReference(path.GetInfo().Fname);
+		String fn = StringReference(PathInfo(path).Fname);
 
 		auto outfile = IO::File::Create(this->m_output_path + fn + _R(".def"), FileMode::CreateNew);
 		RLIB_StreamWriteA(outfile,
@@ -499,7 +504,7 @@ __next:
 		start.wShowWindow = SW_HIDE;   
 
 		Path   path(this->m_dll_path);
-		String fn        = StringReference(path.GetInfo().Fname);	
+		String fn        = StringReference(PathInfo(path).Fname);
 		String parameter = _R("LINK /LIB /MACHINE:");
 		parameter       += this->m_x64 ? _R("X64 /DEF:\"") : _R("X86 /DEF:\"");
 		parameter       += this->m_output_path + fn + _R(".def");
